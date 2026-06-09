@@ -28,22 +28,28 @@ The platform is designed around decoupled microservices interacting through sync
 
 ---
 
-## ⚡ Key Engineering Implementation Details
+# Distributed Real-Time Ride-Sharing Backend Platform
 
-### 1. Production-Grade Event Processing & Error Handling
+A high-performance backend platform built to handle the core operational lifecycle of an Uber-style ride-sharing system. This project focuses on solving complex real-time marketplace challenges—such as instant driver matching, live location distribution, and resilient payment settlement—using a decoupled microservices architecture.
 
-- **Quality of Service (QoS):** Configured fair prefetch limits (`Qos(1)`) on RabbitMQ channels to prevent memory congestion and ensure deterministic resource balance across replica pods.
-- **Dead Letter Exchanges (DLX):** Implemented a programmatic quarantine strategy. Failed queue processing iterations automatically append custom metadata strings directly into the `amqp.Table` headers (acting as an audit death certificate) before calling explicit un-requeued rejections (`d.Reject(false)`).
+## 🚀 Core Features Built & Fully Operational
 
-### 2. Resilient Integration Middleware
+### 1. Real-Time Event Distribution (WebSockets)
+* **Persistent Handset Pipelines:** Built a stateful connection manager in the API Gateway that holds open permanent WebSockets to riders and drivers.
+* **Instant Client Dispatches:** Allows the backend to instantly push ride invitations and location updates down to a user's device without waiting for a manual page refresh.
 
-- **Exponential Backoff:** Engineered abstract retry wrappers incorporating custom duration scaling and safe execution ceilings (`MaxWait`).
-- **Context Preservation:** Integrates native Go `context.Context` channels into retry execution frameworks, ensuring background request attempts abort immediately if a client safely disconnects or cancels the original intent.
+### 2. Automated Route & Upfront Price Generation (OSRM API)
+* **Spatial Calculations:** Integrates directly with the Open Source Routing Machine (OSRM) API to calculate precise driving distances and durations between pickup and destination coordinates.
+* **Dynamic Pricing Engine:** Implements a pricing algorithm that uses the route metadata to generate upfront fare quotes simultaneously for multiple vehicle tiers (`SUV`, `Sedan`, `Van`, `Luxury`) in cents to prevent floating-point math errors.
 
-### 3. Distributed Observability Matrix
+### 3. Asynchronous Workflow Orchestration (RabbitMQ)
+* **Decoupled Chain Reactions:** Uses RabbitMQ topic exchanges so services can pass work to each other smoothly. For example, when a trip is requested, the Trip Service drops a message in the broker, allowing the Driver Service to pick it up and process driver matchmaking completely in the background.
+* **Fair Dispatching Throttling:** Configured explicit prefetch limits (`Qos(1)`) on message consumers to ensure a single microservice container handles exactly one trip event at a time, keeping system memory completely stable.
 
-- **Context Propagation:** Configured `TextMapPropagator` wrappers to transparently inject and extract transactional headers across physical network boundaries (RabbitMQ message headers and gRPC metadata payloads).
-- **High-Precision Span Nesting:** Leverages automated Interceptors (`otelgrpc`) to build structural hierarchical trace trees inside **Jaeger**, isolating upstream gRPC server lifecycles from deep database bottlenecks down to the nanosecond.
+### 4. Smart Integration Resilience (Exponential Backoff)
+* **Fault-Tolerant Middleware:** Engineered a custom, abstract retry engine wrapped around third-party network channels (Stripe API). 
+* **Intelligent Backoff Scaling:** If Stripe is temporarily down or slow, the system automatically pauses, doubles its wait timer, and retries the operation up to 3 times before failing, hiding minor internet hiccups from the end user.
+* **Context-Aware Aborts:** Integrated native Go `context.Context` channels so that if a rider cancels their request mid-retry, the backend instantly stops wasting execution resources.
 
 ---
 
