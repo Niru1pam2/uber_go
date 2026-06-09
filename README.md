@@ -6,33 +6,7 @@ A high-throughput, fault-tolerant distributed system mimicking a production-scal
 
 The platform is designed around decoupled microservices interacting through synchronous **gRPC** calls for internal operations and asynchronous **RabbitMQ topic exchanges** for event-driven workflows. Persistent communication with clients is sustained using stateful **WebSockets**.
 
-                       +─────────────────+
-                       |   Web Frontend  |
-                       +────────┬────────+
-                                |
-                                | WebSockets / HTTP
-                                ▼
-                       +─────────────────+
-                       |   API Gateway   |
-                       +───┬─────────┬───+
-                           |         |
-                  gRPC IPC |         | AMQP Events
-                           ▼         ▼
-
-+──────────────────────────+ +─────────────────────────+
-| Driver Service | | RabbitMQ Broker |
-+──────────────────────────+ +────────────┬────────────+
-|
-+────────────────┴────────────────+
-▼ ▼
-+─────────────────────────+ +─────────────────────────+
-| Trip Service | | Payment Service |
-+────────────┬────────────+ +────────────┬────────────+
-| |
-▼ ▼
-+─────────────────────────+ +─────────────────────────+
-| MongoDB | | External Stripe API |
-+─────────────────────────+ +─────────────────────────+
+(https://private-user-images.githubusercontent.com/152910199/604974989-25317c94-30ca-4b3f-be29-0be4bfcb644a.jpeg?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODA5OTU0MzEsIm5iZiI6MTc4MDk5NTEzMSwicGF0aCI6Ii8xNTI5MTAxOTkvNjA0OTc0OTg5LTI1MzE3Yzk0LTMwY2EtNGIzZi1iZTI5LTBiZTRiZmNiNjQ0YS5qcGVnP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI2MDYwOSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNjA2MDlUMDg1MjExWiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MzgwYmNjYmRhMzVjMmMwYTBjYzNjNTZlNjkzYTAyZWE2YThiZDNiNDA5Yzg5ZGZlM2UyNWE2N2FlMTcwODUzNCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmcmVzcG9uc2UtY29udGVudC10eXBlPWltYWdlJTJGanBlZyJ9.LVX2ClmkmdAHDIEX6G0kIHvpw-E3avosI0kN_kCVvwQ)
 
 ### 🎬 System Interaction Lifecycle
 
